@@ -6,6 +6,7 @@ Motor::Motor(gpio_num_t in1, gpio_num_t in2) {
     _in1 = in1;
     _in2 = in2;
     direction = Direction::stop;
+    _speed = 0;
 
     ledc_timer_config_t timer_config{};
     timer_config.speed_mode = LEDC_HIGH_SPEED_MODE;
@@ -51,6 +52,7 @@ void Motor::forward(int speed) {
     ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, 0);
     ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1);
     direction = Direction::forward;
+    _speed = speed;
 
 }
 void Motor::reverse(int speed){
@@ -60,6 +62,7 @@ void Motor::reverse(int speed){
     ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, pwm);
     ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1);
     direction = Direction::reverse;
+    _speed = speed;
 
 };
 
@@ -69,6 +72,7 @@ void Motor::stop(){
     ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, 0);
     ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1);
     direction = Direction::stop;
+    _speed = 0;
 }
 
 void Motor::brake(){
@@ -77,6 +81,7 @@ void Motor::brake(){
     ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, 2047);
     ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1);
     direction = Direction::stop;
+    _speed = 0;
 }
 
 bool Motor::isRunning(){
@@ -90,6 +95,10 @@ Motor::Direction Motor::getDirection(){
     return direction;
 }
 
+int Motor::getSpeed(){
+    return _speed;
+}
+
 void Motor::setSpeed(int speed){
     uint32_t pwm = speedToPWM(speed);
     if (direction == Direction::forward) {
@@ -97,11 +106,13 @@ void Motor::setSpeed(int speed){
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, 0);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1);
+        _speed = speed;
     } else if (direction == Direction::reverse) {
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, 0);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1, pwm);
         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_1);
+        _speed = speed;
     } else {
         stop();
     }

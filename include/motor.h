@@ -17,6 +17,7 @@ class Motor{
             void setSpeed(int);
             bool isRunning();
             Direction getDirection();
+            int getSpeed(); // last commanded speed, 0-100 (0 once stopped/braked)
             void stop(); // it naturally stops
             void brake(); //actively brake and oppose the direction it is moving (faster stop)
             uint32_t speedToPWM(int speed);
@@ -24,6 +25,7 @@ class Motor{
     private:
         gpio_num_t _in1;
         gpio_num_t _in2;
+        int _speed;
 };
 
 #endif
